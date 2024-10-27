@@ -1,15 +1,20 @@
-﻿using CarritoDeComprasMVC.Service;
+﻿using CarritoDeComprasMVC.Data;
+using CarritoDeComprasMVC.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarritoDeComprasMVC.Controllers;
 
 public class AccesController : Controller
 {
-    private readonly UserService _userService;
+    private readonly MyDBContext _context;
+    private readonly PasswordHasher<User> _passwordHasher;
 
-    public AccesController(UserService userService)
+    public AccesController(MyDBContext context)
     {
-        _userService = userService;
+        _context = context;
+        _passwordHasher = new PasswordHasher<User>();
     }
     // GET
     public IActionResult Index()
@@ -25,16 +30,30 @@ public class AccesController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(string email, string password)
     {
-        var isValidUser = await _userService.VerifyPasswordAsync(email, password);
+        // Buscar el usuario en la base de datos por su correo electrónico
+        var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
 
-        if (isValidUser)
+        if (user == null)
         {
-            return RedirectToAction("Index", "Tienda");
+            // Usuario no encontrado
+            ViewBag.ErrorMessage = "Correo electrónico o contraseña incorrectos.";
+            return View();
         }
 
-        // Autenticación fallida: muestra un mensaje de error
-        ViewBag.ErrorMessage = "Correo electrónico o contraseña incorrectos.";
-        return View();
+        // Verificar la contraseña en texto plano contra el hash almacenado
+        var result = _passwordHasher.VerifyHashedPassword(user, user.Password, password);
+
+        if (result == PasswordVerificationResult.Success)
+        {
+            // Autenticación exitosa, redirigir al controlador Tienda, acción Index
+            return RedirectToAction("Index", "Tienda");
+        }
+        else
+        {
+            // Contraseña incorrecta
+            ViewBag.ErrorMessage = "Correo electrónico o contraseña incorrectos.";
+            return View();
+        }
     }
     
     [HttpGet]
@@ -45,8 +64,19 @@ public class AccesController : Controller
     [HttpPost]
     public async Task<IActionResult> Register(string name, string email, string password)
     {
-        await _userService.CreateUserAsync(name, email, password);
+        // Crear el usuario y encriptar la contraseña
+        var user = new User
+        {
+            Name = name,
+            Email = email,
+            Password = _passwordHasher.HashPassword(null, password) // Encriptar la contraseña
+        };
 
+        // Guardar el usuario en la base de datos
+        _context.Usuarios.Add(user);
+        await _context.SaveChangesAsync();
+
+        // Redirigir a la página de Login después del registro exitoso
         return RedirectToAction("Login");
     }
 }

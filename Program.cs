@@ -1,29 +1,16 @@
 using CarritoDeComprasMVC.Data;
-using CarritoDeComprasMVC.Service;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
+
 
 var builder = WebApplication.CreateBuilder(args);
-//para conecatar coon la base de datos
-builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
-
-builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
-{
-    var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
-    return new MongoClient(settings.ConnectionString);
-});
-
-builder.Services.AddScoped<IMongoDatabase>(sp =>
-{
-    var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
-    var client = sp.GetRequiredService<IMongoClient>();
-    return client.GetDatabase(settings.DatabaseName);
-});
-// usar el servicio de usuario, osea su crud, como el dto, se hace lo mismo para todas las colecciones
-builder.Services.AddScoped<UserService>();
+builder.Services.AddDbContext<MyDBContext>(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("conn"))
+);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 
 var app = builder.Build();
 
