@@ -43,3 +43,4 @@ C:\University-Projects\Web Projects\CarritoDeComprasMVC\obj\Debug\net8.0\refint\
 C:\University-Projects\Web Projects\CarritoDeComprasMVC\obj\Debug\net8.0\CarritoDeComprasMVC.pdb
 C:\University-Projects\Web Projects\CarritoDeComprasMVC\obj\Debug\net8.0\CarritoDeComprasMVC.genruntimeconfig.cache
 C:\University-Projects\Web Projects\CarritoDeComprasMVC\obj\Debug\net8.0\ref\CarritoDeComprasMVC.dll
+C:\University-Projects\Web Projects\CarritoDeComprasMVC\obj\Debug\net8.0\CarritoDeComprasMVC.sourcelink.json

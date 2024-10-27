@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
-
+//para conecatar coon la base de datos
 builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
 
 builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
@@ -19,7 +19,7 @@ builder.Services.AddScoped<IMongoDatabase>(sp =>
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(settings.DatabaseName);
 });
-
+// usar el servicio de usuario, osea su crud, como el dto, se hace lo mismo para todas las colecciones
 builder.Services.AddScoped<UserService>();
 
 // Add services to the container.

@@ -16,10 +16,27 @@ public class AccesController : Controller
     {
         return View();
     }
+    
+    [HttpGet]
     public IActionResult Login()
     {
         return View();
     }
+    [HttpPost]
+    public async Task<IActionResult> Login(string email, string password)
+    {
+        var isValidUser = await _userService.VerifyPasswordAsync(email, password);
+
+        if (isValidUser)
+        {
+            return RedirectToAction("Index", "Tienda");
+        }
+
+        // Autenticación fallida: muestra un mensaje de error
+        ViewBag.ErrorMessage = "Correo electrónico o contraseña incorrectos.";
+        return View();
+    }
+    
     [HttpGet]
     public IActionResult Register()
     {

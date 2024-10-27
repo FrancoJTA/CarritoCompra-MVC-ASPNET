@@ -37,11 +37,14 @@ public class UserService
         var user = await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
         if (user == null)
             return false;
-
+        
         // Verificar la contraseña en texto plano contra el hash almacenado
         var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, plainPassword);
+
         return result == PasswordVerificationResult.Success;
     }
+
+
     public async Task<List<User>> GetAllUsersAsync() =>
         await _users.Find(_ => true).ToListAsync();
 
